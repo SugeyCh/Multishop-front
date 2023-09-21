@@ -17,7 +17,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const Api = ({ onConfigChange }) => {
   const [ip, setIp] = useState("");
   const [port, setPort] = useState("");
-  const [error, setError] = useState(null); // Agregamos un estado para el error
+  const [error, setError] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
