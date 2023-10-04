@@ -8,8 +8,8 @@
         }
       ]
     ],
-    "name": "lector",
-    "slug": "lector",
+    "name": "MultishopApp Lector",
+    "slug": "multishopapp-lector",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -31,20 +31,17 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
         "android.permission.CAMERA"
       ],
-      "package": "com.expoaplicacion.lector"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      "package": "com.kenyerramirez.multishopapplector"
     },
     "extra": {
       "eas": {
-        "projectId": "1c61c5e2-8508-44a8-8658-ae94f7d9cc73"
+        "projectId": "2f68d4b7-671e-430a-aedb-70b32578f71d"
       }
     }
   }

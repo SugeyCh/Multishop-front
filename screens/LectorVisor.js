@@ -7,30 +7,32 @@ import {
   ScrollView,
   TextInput,
   Alert,
-  BackHandler
+  BackHandler,
+  Image,
 } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { getCode } from "../routes/barcode";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import RuedaCarga from "./RuedaCarga";
 
 const LectorVisor = ({ config }) => {
-
   const navigation = useNavigation();
 
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [code, setcode] = useState({
-    chijo: ''
+    chijo: "",
   });
   const [inv, setinv] = useState({
-    descrip: '',
-    precio1: '',
-    existencia: ''
-  })
+    descrip: "",
+    precio1: "",
+    existencia: "",
+  });
   const [ip, setIp] = useState("");
-  const [port, setPort] = useState("");
+  // const [port, setPort] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [done, setdone] = useState(false);
 
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
@@ -42,14 +44,14 @@ const LectorVisor = ({ config }) => {
     const getConfig = async () => {
       try {
         const savedIp = await AsyncStorage.getItem("ip");
-        const savedPort = await AsyncStorage.getItem("port");
-        if (savedIp && savedPort) {
+        // const savedPort = await AsyncStorage.getItem("port");
+        if (savedIp) {
           setIp(savedIp);
-          setPort(savedPort);
+          // setPort(savedPort);
         } else {
           Alert.alert(
             "¡Hola!",
-            "Por favor ingresa la dirección IP y puerto al que se conectará.",
+            "Por favor ingresa la dirección a la que se conectará.",
             [
               {
                 text: "Ir a configuración",
@@ -82,41 +84,83 @@ const LectorVisor = ({ config }) => {
 
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
-    setcode({chijo: data});
-    handleSearch(data)
+    setcode({ chijo: data });
+    handleSearch(data);
     // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
   };
 
-  const handleClean = () => {
-    setScanned(true)
+  const handleClean = async () => {
+    setScanned(true);
     setcode({ chijo: "" });
     setinv({ descrip: "", precio1: "", existencia: "" });
   };
 
-  const handleSearch = async (data) => {
-    if(code.chijo == ''){
+  const handleReSearch = () => {
+    setTimeout(() => {
       setScanned(false);
       setTimeout(() => {
         setScanned(true);
       }, 5000);
-    }else{
-      setScanned(true)
+      if (code.chijo != "") {
+        setScanned(true);
+        if (inv.descrip == "") {
+          setIsLoading(true);
+        }
+      }
+    }, 1000);
+  };
+
+  const handleScanning = async () => {
+    setScanned(false);
+    setTimeout(() => {
+      setScanned(true);
+    }, 5000);
+    if (code.chijo != "") {
+      setScanned(true);
+      if (inv.descrip == "") {
+        setIsLoading(true);
+      }
     }
-    try{
-      const apiUrl = `http://${ip}:${port}/lector`;
-      const [result] = await getCode(code.chijo, apiUrl);;
-      if (result) {
-        setinv({ descrip: result.descrip, precio1: result.precio1 + " $", existencia: result.existencia + " unidades" });
+  };
+
+  const handleSearch = async (data) => {
+    await handleScanning();
+
+    try {
+      let apiUrl = ``;
+      if (!(config.ip == "")) {
+        apiUrl = `https://${config.ip}.loca.lt/lector`;
+        // apiUrl = `http://${config.ip}:${config.port}/lector`;
+        console.log("dirección con config: ", apiUrl);
+      } else {
+        apiUrl = `https://${ip}.loca.lt/lector`;
+        // apiUrl = `http://${ip}:${port}/lector`;
+        console.log("dirección con async: ", apiUrl);
+      }
+      if(code.chijo != ''){
+        const [result] = await getCode(code.chijo, apiUrl);
+        if (result) {
+          setinv({
+            descrip: result.descrip,
+            precio1: result.precio1 + " $",
+            existencia: result.existencia + " unidades",
+          });
         // console.log(result);
         // console.log(inv);
       } else {
-        Alert.alert("Lo siento", `No se encontraron productos con ese código, intenta nuevamente.`);
+        Alert.alert(
+          "Lo siento",
+          `No se encontraron productos con ese código, intenta nuevamente.`
+          );
+        setcode({ chijo: "" });
       }
-    }catch(error){
-      
+    }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
     }
   };
-  
+
   if (hasPermission === null) {
     return <Text>Requesting for camera permission</Text>;
   }
@@ -152,7 +196,11 @@ const LectorVisor = ({ config }) => {
             flexDirection: "row",
           }}
         >
-          <TouchableOpacity style={styles.search} onPress={handleSearch}>
+          <TouchableOpacity
+            style={styles.search}
+            onPress={handleSearch}
+            disabled={code.chijo != "" ? true : false}
+          >
             <Text style={{ color: "white" }}>
               {scanned ? "Buscar" : "Buscando"}
             </Text>
@@ -183,7 +231,7 @@ const LectorVisor = ({ config }) => {
             style={{ color: "black", textAlign: "center" }}
           />
         </ScrollView>
-        <ScrollView style={styles.inputRest}>
+        <ScrollView style={styles.inputAm}>
           <TextInput
             placeholder="Existencia"
             value={inv.existencia.toString()}
@@ -192,6 +240,30 @@ const LectorVisor = ({ config }) => {
             style={{ color: "black", textAlign: "center" }}
           />
         </ScrollView>
+      </View>
+      {isLoading && <RuedaCarga />}
+      <View style={styles.footer}>
+        <Text style={{ marginRight: 30, fontSize: 20, color: "gray" }}>
+          Designed by
+        </Text>
+        <Image
+          source={require("../assets/MultilogoPNGR.png")}
+          style={{
+            width: 180,
+            height: 70,
+            marginLeft: -66,
+            marginBottom: -27,
+            resizeMode: "contain",
+          }}
+        />
+      </View>
+      <View style={styles.logoContainer}>
+        <Image
+          source={require("../assets/logoMulti-removebg-HD.png")}
+          style={{
+            width: "100%",
+          }}
+        />
       </View>
     </ScrollView>
   );
@@ -255,6 +327,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     borderRadius: 10,
     marginTop: 10,
+    marginBottom: 120,
+    zIndex: 3,
   },
   search: {
     borderRadius: 10,
@@ -290,6 +364,21 @@ const styles = StyleSheet.create({
     marginTop: 10,
     margin: 5,
     backgroundColor: "#0D4D80",
+  },
+  footer: {
+    flexDirection: "row",
+    zIndex: 9,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
+    bottom: 65,
+  },
+  logoContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: -6,
+    right: 0,
+    alignItems: "center",
   },
 });
 

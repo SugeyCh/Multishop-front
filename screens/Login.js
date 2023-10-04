@@ -8,12 +8,14 @@ import {
   TextInput,
   Image,
   Alert,
+  ActivityIndicator
 } from "react-native";
 import { postUser } from "../routes/register";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { getApi } from "../routes/test";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import RuedaCarga from "./RuedaCarga";
 
 const Login = ({ config, handleUser }) => {
   const navigation = useNavigation();
@@ -22,72 +24,78 @@ const Login = ({ config, handleUser }) => {
     contrasena: "",
   });
   const [ip, setIp] = useState("");
-  const [port, setPort] = useState("");
+  // const [port, setPort] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const getConfig = async () => {
-      try {
-        const savedIp = await AsyncStorage.getItem("ip");
-        const savedPort = await AsyncStorage.getItem("port");
+    useEffect(() => {
+      const getConfig = async () => {
+        try {
+          const savedIp = await AsyncStorage.getItem("ip");
+          // const savedPort = await AsyncStorage.getItem("port");
 
-        if (savedIp && savedPort) {
-          setIp(savedIp);
-          setPort(savedPort);
+          if (savedIp) {
+            setIp(savedIp);
+            // setPort(savedPort);
 
-          if (savedIp && savedPort) {
-            const apiUrl = `http://${savedIp}:${savedPort}/test`;
-            const res = await getApi(apiUrl);
+            if (savedIp) {
+              const apiUrl = `https://${savedIp}.loca.lt/test`;
+              // const apiUrl = `http://${savedIp}:${savedPort}/test`;
+              const res = await getApi(apiUrl);
+              console.log(apiUrl)
 
-            if (res.Status === "Failed") {
-              Alert.alert(
-                "¡Espera!",
-                "La dirección IP y puerto no se pueden conectar a la API, ve a configuración e ingresa los correctos.",
-                [
-                  {
-                    text: "Ir a configuración",
-                    onPress: () => {
-                      navigation.navigate("Api");
+              if (res.Status === "Failed") {
+                Alert.alert(
+                  "¡Espera!",
+                  "La dirección no se puede conectar a la API, ve a configuración e ingresa el correcto.",
+                  [
+                    {
+                      text: "Ir a configuración",
+                      onPress: () => {
+                        navigation.navigate("Api");
+                      },
                     },
-                  },
-                ]
-              );
+                  ]
+                );
+              } else {
+                // continúa
+              }
             } else {
               // continúa
             }
           } else {
-            // continúa
-          }
-        } else {
-          Alert.alert(
-            "¡Hola!",
-            "Por favor ingresa la dirección IP y puerto al que se conectará.",
-            [
-              {
-                text: "Ir a configuración",
-                onPress: () => {
-                  navigation.navigate("Api");
+            Alert.alert(
+              "¡Hola!",
+              "Por favor ingresa la dirección a la que se conectará.",
+              [
+                {
+                  text: "Ir a configuración",
+                  onPress: () => {
+                    navigation.navigate("Api");
+                  },
                 },
-              },
-            ]
-          );
+              ]
+            );
+          }
+        } catch (error) {
+          console.error("Error al recuperar la configuración:", error);
         }
-      } catch (error) {
-        console.error("Error al recuperar la configuración:", error);
-      }
-    };
+      };
 
-    getConfig();
-  }, []);
+      getConfig();
+    }, []);
 
   axios.defaults.withCredentials = true;
   const handleLogin = async () => {
+    setIsLoading(true);
     try {
       let apiUrl = ``;
-      if (!(config.ip == '' && config.port == '')) {
-        apiUrl = `http://${config.ip}:${config.port}/login`;
+      if (!(config.ip == "")) {
+        apiUrl = `https://${config.ip}.loca.lt/login`;
+        // apiUrl = `http://${config.ip}:${config.port}/login`;
         console.log("dirección con config: ", apiUrl);
       } else {
-        apiUrl = `http://${ip}:${port}/login`;
+        apiUrl = `https://${ip}.loca.lt/login`;
+        // apiUrl = `http://${ip}:${port}/login`;
         console.log("dirección con async: ", apiUrl);
       }
       console.log("Esta es la dirección: ", apiUrl);
@@ -110,17 +118,11 @@ const Login = ({ config, handleUser }) => {
     } catch (error) {
       Alert.alert(
         "Error",
-        "Error en la consulta, dirección y puerto incorrectos o inexistentes.",
-        [
-          {
-            text: "Ir a configuración",
-            onPress: () => {
-              navigation.navigate("Api");
-            },
-          },
-        ]
+        "Error en la consulta, ejecuta el servidor para continuar."
       );
       console.log(error);
+    } finally {
+      setIsLoading(false); 
     }
   };
 
@@ -156,6 +158,7 @@ const Login = ({ config, handleUser }) => {
             Iniciar Sesión
           </Text>
         </TouchableOpacity>
+        {isLoading && <RuedaCarga />}
         {/* <TouchableOpacity
           style={styles.registerLink}
           onPress={() => navigation.navigate('Register')}
@@ -278,14 +281,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 10,
-    bottom: 65
+    bottom: 65,
   },
   logoContainer: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    alignItems: "center"
-}});
+    alignItems: "center",
+  },
+});
 
 export default Login;

@@ -18,11 +18,10 @@ import ImagenHeader from "./screens/ImagenHeader";
 export default function App() {
   const Stack = createNativeStackNavigator();
 
-  // Estado para almacenar la configuración de la dirección IP y el puerto
-  const [config, setConfig] = useState({ ip: "", port: "" });
+  const [config, setConfig] = useState({ ip: ""});
+  // const [config, setConfig] = useState({ ip: "", port: ""});
   const [usernombre, setusernombre] = useState("");
 
-  // Función para actualizar la configuración desde el componente Api
   const handleConfigChange = (newConfig) => {
     setConfig(newConfig);
   };

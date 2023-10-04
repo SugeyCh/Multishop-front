@@ -7,66 +7,66 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
-  Image
+  Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getApi } from "../routes/test";
 import ImagenHeader from "./ImagenHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import RuedaCarga from "./RuedaCarga";
 
 const Api = ({ onConfigChange }) => {
   const [ip, setIp] = useState("");
-  const [port, setPort] = useState("");
+  // const [port, setPort] = useState("");
   const [error, setError] = useState(null);
   const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const getConfig = async () => {
       try {
         const savedIp = await AsyncStorage.getItem("ip");
-        const savedPort = await AsyncStorage.getItem("port");
-        if (savedIp && savedPort) {
+        // const savedPort = await AsyncStorage.getItem("port");
+        if (savedIp) {
           setIp(savedIp);
-          setPort(savedPort);
+          // setPort(savedPort);
         }
       } catch (error) {
-        console.error("Error al recuperar la configuración:", error);
+        console.error("Error al recuperar la configuración: ", error);
       }
     };
     getConfig();
   }, []);
 
   const saveConfig = async () => {
-    const apiUrl = `http://${ip}:${port}`;
+    const apiUrl = `https://${ip}.loca.lt`;
     console.log(apiUrl);
-
+    setIsLoading(true);
     try {
-      const apiUrl = `http://${ip}:${port}/test`;
+      const apiUrl = `https://${ip}.loca.lt/test`;
+      // const apiUrl = `http://${ip}:${port}/test`;
       const res = await getApi(apiUrl);
 
       if (res.Status === "Success") {
-        Alert.alert("¡Muy bien!", "Dirección IP y puerto correctos.");
+        Alert.alert("¡Muy bien!", "Dirección correcta.");
         navigation.navigate("Login");
         setError(null);
         await AsyncStorage.setItem("ip", ip);
-        await AsyncStorage.setItem("port", port);
+        // await AsyncStorage.setItem("port", port);
       } else {
-        Alert.alert(
-          "Espera", "La dirección y puerto son incorrectos. Intenta de nuevo."
-        );
-        setError(
-          "Espera, la dirección y puerto son incorrectos. Intenta de nuevo."
-        );
+        Alert.alert("Espera", "La dirección es incorrecta. Intenta de nuevo.");
+        setError("Espera, la dirección es incorrecta. Intenta de nuevo.");
       }
     } catch (error) {
-      Alert.alert("Espera", "la dirección y puerto son incorrectos. Intenta de nuevo.");
-      setError(
-        "Espera, la dirección y puerto son incorrectos. Intenta de nuevo."
-      );
+      Alert.alert("Espera", "la dirección incorrecta. Intenta de nuevo.");
+      setError("Espera, la dirección es incorrecta. Intenta de nuevo.");
+    } finally {
+      setIsLoading(false);
     }
 
     // Guardar la configuración en el estado local del componente Api
-    onConfigChange({ ip, port });
+    onConfigChange({ ip });
+    // onConfigChange({ ip, port });
   };
 
   return (
@@ -75,17 +75,17 @@ const Api = ({ onConfigChange }) => {
       <View style={styles.view}>
         <Text style={styles.title}>Ingresa los datos</Text>
         <TextInput
-          placeholder="Dirección IP"
+          placeholder="https://<DIRECCIÓN>.loca.lt"
           value={ip}
           onChangeText={(text) => setIp(text)}
           style={styles.input}
         />
-        <TextInput
+        {/* <TextInput
           placeholder="Puerto"
           value={port}
           onChangeText={(text) => setPort(text)}
           style={styles.input}
-        />
+        /> */}
         <View style={{ alignItems: "center" }}>
           <TouchableOpacity style={styles.button} onPress={saveConfig}>
             <Text style={{ color: "white", textAlign: "center" }}>
@@ -94,6 +94,8 @@ const Api = ({ onConfigChange }) => {
           </TouchableOpacity>
         </View>
       </View>
+      {isLoading && <RuedaCarga />}
+
       {/* <View style={styles.footer}>
           <Text style={{ marginRight: 30, fontSize: 20, color: "gray" }}>
             Designed by
@@ -103,6 +105,29 @@ const Api = ({ onConfigChange }) => {
       style={{ width: 180, height: 70, marginLeft: -66, marginBottom: -27, resizeMode: 'contain' }} // Estilos de la imagen
     />
         </View> */}
+      <View style={styles.footer}>
+        <Text style={{ marginRight: 30, fontSize: 20, color: "gray" }}>
+          Designed by
+        </Text>
+        <Image
+          source={require("../assets/MultilogoPNGR.png")}
+          style={{
+            width: 180,
+            height: 70,
+            marginLeft: -66,
+            marginBottom: -27,
+            resizeMode: "contain",
+          }}
+        />
+      </View>
+      <View style={styles.logoContainer}>
+        <Image
+          source={require("../assets/logoMulti-removebg-HD.png")}
+          style={{
+            width: "100%",
+          }}
+        />
+      </View>
     </ScrollView>
   );
 };
@@ -128,7 +153,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
     backgroundColor: "#02A0CA",
-    marginBottom: 70,
+    marginBottom: 233,
     width: "40%",
   },
   view: {
@@ -155,6 +180,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     fontFamily: "",
     padding: 10,
+    bottom: -130,
+    zIndex: 3
   },
 });
 

@@ -7,12 +7,14 @@ import {
   ScrollView,
   TextInput,
   Alert,
-  BackHandler
+  BackHandler,
+  Image,
 } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { getCode, postCode } from "../routes/barcode";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import RuedaCarga from "./RuedaCarga";
 
 const LectorColector = ({ config, UserName }) => {
   const navigation = useNavigation();
@@ -31,7 +33,10 @@ const LectorColector = ({ config, UserName }) => {
     descrip: "",
   });
   const [ip, setIp] = useState("");
-  const [port, setPort] = useState("");
+  // const [port, setPort] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [done, setdone] = useState(false);
+
 
   useEffect(() => {
     console.log("Iniciado ", movement.user);
@@ -44,14 +49,14 @@ const LectorColector = ({ config, UserName }) => {
     const getConfig = async () => {
       try {
         const savedIp = await AsyncStorage.getItem("ip");
-        const savedPort = await AsyncStorage.getItem("port");
-        if (savedIp && savedPort) {
+        // const savedPort = await AsyncStorage.getItem("port");
+        if (savedIp) {
           setIp(savedIp);
-          setPort(savedPort);
+          // setPort(savedPort);
         } else {
           Alert.alert(
             "¡Hola!",
-            "Por favor ingresa la dirección IP y puerto al que se conectará.",
+            "Por favor ingresa la dirección a la que se conectará.",
             [
               {
                 text: "Ir a configuración",
@@ -83,8 +88,18 @@ const LectorColector = ({ config, UserName }) => {
   }, []);
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     try {
-      const apiUrl = `http://${ip}:${port}/lector`;
+      let apiUrl = ``;
+      if (!(config.ip == "")) {
+          apiUrl = `https://${config.ip}.loca.lt/lector`;
+          // apiUrl = `http://${config.ip}:${config.port}/lector`;
+        console.log("dirección con config: ", apiUrl);
+      } else {
+          apiUrl = `https://${ip}.loca.lt/lector`;
+          // apiUrl = `http://${ip}:${port}/lector`;
+        console.log("dirección con async: ", apiUrl);
+      }
       const res = await postCode(movement, apiUrl);
       if (res) {
         Alert.alert("¡Muy bien!", "Registro exitoso.");
@@ -96,16 +111,10 @@ const LectorColector = ({ config, UserName }) => {
     } catch (error) {
       Alert.alert(
         "Error",
-        "Error en la consulta, dirección y puerto incorrectos o inexistentes.",
-        [
-          {
-            text: "Ir a inicio",
-            onPress: () => {
-              navigation.navigate("Login");
-            },
-          },
-        ]
+        "Error en la consulta, ejecuta el servidor para continuar."
       );
+    }finally{
+      setIsLoading(false);
     }
   };
 
@@ -123,6 +132,7 @@ const LectorColector = ({ config, UserName }) => {
 
   const handleClean = () => {
     setScanned(true);
+    setdone(false);
     setcode({ chijo: "" });
     setinv({ descrip: "" });
     setmovement({ conteo: "", user: UserName });
@@ -136,28 +146,48 @@ const LectorColector = ({ config, UserName }) => {
       }, 5000);
     } else {
       setScanned(true);
+      setdone(true);
+      if (inv.descrip == "") {
+        setIsLoading(true);
+      }
     }
     try {
       // console.log(codeToSearch)
-      const apiUrl = `http://${ip}:${port}/lector`;
-      const [result] = await getCode(code.chijo, apiUrl);
-      // const apiUrlUser = `http://${config.ip}:${config.port}/lector`
-      // const [user] = await getUsers(apiUrlUser)
-      // setmovement({ id_user: user[0].id_user, cod_prod: code.chijo });
-
-      if (result) {
-        setinv({
-          descrip: result.descrip,
-        });
-        setmovement({ cod_prod: code.chijo, user: UserName, conteo: "" });
-        console.log(movement);
+      let apiUrl = ``;
+      if (!(config.ip == "")) {
+          apiUrl = `https://${config.ip}.loca.lt/lector`;
+          // apiUrl = `http://${config.ip}:${config.port}/lector`;
+        console.log("dirección con config: ", apiUrl);
       } else {
-        Alert.alert(
-          "Lo siento",
-          `No se encontraron productos con ese código, intenta nuevamente.`
-        );
+          apiUrl = `https://${ip}.loca.lt/lector`;
+          // apiUrl = `http://${ip}:${port}/lector`;
+        console.log("dirección con async: ", apiUrl);
+      }
+      if(code.chijo != ''){
+
+        const [result] = await getCode(code.chijo, apiUrl);
+        // const apiUrlUser = `http://${config.ip}:${config.port}/lector`
+        // const [user] = await getUsers(apiUrlUser)
+        // setmovement({ id_user: user[0].id_user, cod_prod: code.chijo });
+  
+        if (result) {
+          setinv({
+            descrip: result.descrip,
+          });
+          setmovement({ cod_prod: code.chijo, user: UserName, conteo: "" });
+          console.log(movement);
+        } else {
+          Alert.alert(
+            "Lo siento",
+            `No se encontraron productos con ese código, intenta nuevamente.`
+          );
+          setcode({ chijo: "" });
+        }
       }
     } catch (error) {}
+    finally{
+      setIsLoading(false);
+    }
   };
 
   if (hasPermission === null) {
@@ -195,7 +225,11 @@ const LectorColector = ({ config, UserName }) => {
             flexDirection: "row",
           }}
         >
-          <TouchableOpacity style={styles.search} onPress={handleSearch}>
+          <TouchableOpacity
+            style={styles.search}
+            disabled={code.chijo != "" ? true : false}
+            onPress={handleSearch}
+          >
             <Text style={{ color: "white" }}>
               {scanned ? "Buscar" : "Buscando"}
             </Text>
@@ -234,6 +268,30 @@ const LectorColector = ({ config, UserName }) => {
             <Text style={{ color: "white" }}>Registrar</Text>
           </TouchableOpacity>
         )}
+      </View>
+      {isLoading && <RuedaCarga />}
+      <View style={styles.footer}>
+        <Text style={{ marginRight: 30, fontSize: 20, color: "gray" }}>
+          Designed by
+        </Text>
+        <Image
+          source={require("../assets/MultilogoPNGR.png")}
+          style={{
+            width: 180,
+            height: 70,
+            marginLeft: -66,
+            marginBottom: -27,
+            resizeMode: "contain",
+          }}
+        />
+      </View>
+      <View style={styles.logoContainer}>
+        <Image
+          source={require("../assets/logoMulti-removebg-HD.png")}
+          style={{
+            width: "100%",
+          }}
+        />
       </View>
     </ScrollView>
   );
@@ -289,6 +347,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     borderRadius: 10,
     marginTop: 10,
+    zIndex: 3,
   },
   search: {
     borderRadius: 10,
@@ -302,14 +361,16 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
     backgroundColor: "#02A0CA",
-    marginBottom: 70,
+    marginBottom: 100,
+    zIndex: 3,
   },
   submitDisabled: {
     borderRadius: 10,
     padding: 10,
     marginTop: 10,
     backgroundColor: "gray",
-    marginBottom: 70,
+    marginBottom: 100,
+    zIndex: 3,
   },
   searching: {
     borderRadius: 10,
@@ -324,6 +385,21 @@ const styles = StyleSheet.create({
     marginTop: 10,
     margin: 5,
     backgroundColor: "#0D4D80",
+  },
+  footer: {
+    flexDirection: "row",
+    zIndex: 9,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
+    bottom: 65,
+  },
+  logoContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: -6,
+    right: 0,
+    alignItems: "center",
   },
 });
 
