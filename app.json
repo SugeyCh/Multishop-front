@@ -37,11 +37,6 @@
       "permissions": [
         "android.permission.CAMERA"
       ]
-    },
-    "extra": {
-      "eas": {
-        "projectId": "ec48edd8-1f69-4ac6-9d9b-a57271dcd555"
-      }
     }
   }
 }
