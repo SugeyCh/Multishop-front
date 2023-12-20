@@ -36,8 +36,7 @@
       },
       "permissions": [
         "android.permission.CAMERA"
-      ],
-      "package": "com.kenyerramirez.multishopapplector"
+      ]
     },
     "extra": {
       "eas": {
