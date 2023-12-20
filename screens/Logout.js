@@ -45,10 +45,10 @@ const Logout = ({ config }) => {
     try {
       let apiUrl = ``;
       if (!(config.ip == "")) {
-        apiUrl = `https://${config.ip}.loca.lt/logout`;
+        apiUrl = `http://${config.ip}:3000/logout`;
         console.log("dirección con config: ", apiUrl);
       } else {
-        apiUrl = `https://${ip}.loca.lt/logout`;
+        apiUrl = `http://${ip}:3000/logout`;
         console.log("dirección con async: ", apiUrl);
       }
       const res = await logout(apiUrl);

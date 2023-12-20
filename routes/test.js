@@ -1,11 +1,13 @@
 export const getApi = async (apiUrl) => {
+    console.log(apiUrl);
     try{
-        const response = await fetch(`${apiUrl}`);
+        const response = await fetch(`${apiUrl}`)
         const data = await response.json();
-        console.log(data)
+        console.log("status:", response.status, ", Data:", data)
         return data;
     }catch(error){
+        console.log(`Error: ${error.message}`);
         console.log('Dirección y puertos incorrectos.', error)
-        return { Status: 'Failed' };
+        return data.status(404)
     }
 };

@@ -38,12 +38,12 @@ const Login = ({ config, handleUser }) => {
             // setPort(savedPort);
 
             if (savedIp) {
-              const apiUrl = `https://${savedIp}.loca.lt/test`;
+              const apiUrl = `http://${savedIp}:3000/test`;
               // const apiUrl = `http://${savedIp}:${savedPort}/test`;
               const res = await getApi(apiUrl);
               console.log(apiUrl)
 
-              if (res.Status === "Failed") {
+              if (typeof res !== "object") {
                 Alert.alert(
                   "¡Espera!",
                   "La dirección no se puede conectar a la API, ve a configuración e ingresa el correcto.",
@@ -57,7 +57,7 @@ const Login = ({ config, handleUser }) => {
                   ]
                 );
               } else {
-                // continúa
+                //
               }
             } else {
               // continúa
@@ -90,11 +90,11 @@ const Login = ({ config, handleUser }) => {
     try {
       let apiUrl = ``;
       if (!(config.ip == "")) {
-        apiUrl = `https://${config.ip}.loca.lt/login`;
+        apiUrl = `http://${config.ip}:3000/login`;
         // apiUrl = `http://${config.ip}:${config.port}/login`;
         console.log("dirección con config: ", apiUrl);
       } else {
-        apiUrl = `https://${ip}.loca.lt/login`;
+        apiUrl = `http://${ip}:3000/login`;
         // apiUrl = `http://${ip}:${port}/login`;
         console.log("dirección con async: ", apiUrl);
       }

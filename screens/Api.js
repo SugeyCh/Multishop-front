@@ -16,7 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import RuedaCarga from "./RuedaCarga";
 
 const Api = ({ onConfigChange }) => {
-  const [ip, setIp] = useState("");
+  const [ip, setIp] = useState("192.168.1.2");
   // const [port, setPort] = useState("");
   const [error, setError] = useState(null);
   const navigation = useNavigation();
@@ -26,6 +26,7 @@ const Api = ({ onConfigChange }) => {
     const getConfig = async () => {
       try {
         const savedIp = await AsyncStorage.getItem("ip");
+        console.log(`Esto es el getConfig: ${savedIp}`);
         // const savedPort = await AsyncStorage.getItem("port");
         if (savedIp) {
           setIp(savedIp);
@@ -39,15 +40,14 @@ const Api = ({ onConfigChange }) => {
   }, []);
 
   const saveConfig = async () => {
-    const apiUrl = `https://${ip}.loca.lt`;
-    console.log(apiUrl);
     setIsLoading(true);
     try {
-      const apiUrl = `https://${ip}.loca.lt/test`;
+      const apiUrl = `http://${ip}:3000/test`;
       // const apiUrl = `http://${ip}:${port}/test`;
       const res = await getApi(apiUrl);
+      console.log('Esto es el res del SaveConfig:', res)
 
-      if (res.Status === "Success") {
+      if (res && res.Status === "Success") {
         Alert.alert("¡Muy bien!", "Dirección correcta.");
         navigation.navigate("Login");
         setError(null);
@@ -75,7 +75,7 @@ const Api = ({ onConfigChange }) => {
       <View style={styles.view}>
         <Text style={styles.title}>Ingresa los datos</Text>
         <TextInput
-          placeholder="https://<DIRECCIÓN>.loca.lt"
+          placeholder="Ingresa el nombre del subdominio"
           value={ip}
           onChangeText={(text) => setIp(text)}
           style={styles.input}
