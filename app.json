@@ -38,11 +38,6 @@
         "android.permission.CAMERA"
       ],
       "package": "com.sugey.multishopapplector"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "ca9dae25-7fbc-4ef2-8b93-7e4ac90ea06a"
-      }
     }
   }
 }
