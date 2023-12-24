@@ -16,7 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import RuedaCarga from "./RuedaCarga";
 
 const Api = ({ onConfigChange }) => {
-  const [ip, setIp] = useState("192.168.1.2");
+  const [ip, setIp] = useState("");
   // const [port, setPort] = useState("");
   const [error, setError] = useState(null);
   const navigation = useNavigation();
@@ -42,8 +42,9 @@ const Api = ({ onConfigChange }) => {
   const saveConfig = async () => {
     setIsLoading(true);
     try {
-      const apiUrl = `http://${ip}:3000/test`;
-      // const apiUrl = `http://${ip}:${port}/test`;
+
+      const apiUrl = `https://multishop-backend.onrender.com/test`;
+      // const apiUrl = `https://multishop-backend.onrender.com/`;
       const res = await getApi(apiUrl);
       console.log('Esto es el res del SaveConfig:', res)
 

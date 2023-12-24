@@ -12,7 +12,7 @@ const Main = ({config}) => {
   const [nombre, setnombre] = useState("")
 
   useEffect(() => {
-    axios.get(`http://${config.ip}:${config.port}`)
+    axios.get(`https://multishop-backend.onrender.com`)
     .then(res => {
       if(res.data.Status === "Success"){
         setauth(true)

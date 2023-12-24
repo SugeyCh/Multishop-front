@@ -38,7 +38,7 @@ const Login = ({ config, handleUser }) => {
             // setPort(savedPort);
 
             if (savedIp) {
-              const apiUrl = `http://${savedIp}:3000/test`;
+              const apiUrl = `https://multishop-backend.onrender.com/test`;
               // const apiUrl = `http://${savedIp}:${savedPort}/test`;
               const res = await getApi(apiUrl);
               console.log(apiUrl)
@@ -90,11 +90,11 @@ const Login = ({ config, handleUser }) => {
     try {
       let apiUrl = ``;
       if (!(config.ip == "")) {
-        apiUrl = `http://${config.ip}:3000/login`;
+        apiUrl = `https://multishop-backend.onrender.com/login`;
         // apiUrl = `http://${config.ip}:${config.port}/login`;
         console.log("dirección con config: ", apiUrl);
       } else {
-        apiUrl = `http://${ip}:3000/login`;
+        apiUrl = `https://multishop-backend.onrender.com/login`;
         // apiUrl = `http://${ip}:${port}/login`;
         console.log("dirección con async: ", apiUrl);
       }

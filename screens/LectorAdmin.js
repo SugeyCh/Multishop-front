@@ -98,11 +98,11 @@ const LectorAdmin = ({ config, UserName }) => {
       } else {
         let apiUrl = ``;
         if (!(config.ip == "")) {
-          apiUrl = `http://${config.ip}:3000/lector`;
+          apiUrl = `https://multishop-backend.onrender.com/lector`;
           // apiUrl = `http://${config.ip}:${config.port}/lector`;
           console.log("dirección con config: ", apiUrl);
         } else {
-          apiUrl = `http://${ip}:3000/lector`;
+          apiUrl = `https://multishop-backend.onrender.com/lector`;
           // apiUrl = `http://${ip}:${port}/lector`;
           console.log("dirección con async: ", apiUrl);
         }

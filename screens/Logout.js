@@ -45,10 +45,10 @@ const Logout = ({ config }) => {
     try {
       let apiUrl = ``;
       if (!(config.ip == "")) {
-        apiUrl = `http://${config.ip}:3000/logout`;
+        apiUrl = `https://multishop-backend.onrender.com/logout`;
         console.log("dirección con config: ", apiUrl);
       } else {
-        apiUrl = `http://${ip}:3000/logout`;
+        apiUrl = `https://multishop-backend.onrender.com/logout`;
         console.log("dirección con async: ", apiUrl);
       }
       const res = await logout(apiUrl);

@@ -25,7 +25,7 @@ const Register = ({ config }) => {
 
   const handleSubmit = async () => {
     try {
-      const apiUrl = `http://${config.ip}:${config.port}/register`;
+      const apiUrl = `https://multishop-backend.onrender.com/register`;
       const res = await postUser(user, apiUrl);
       if (res) {
         alert("¡Registro exitoso!");
