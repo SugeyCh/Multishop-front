@@ -1,5 +1,4 @@
 export const getApi = async (apiUrl) => {
-    console.log(apiUrl);
     try{
         const response = await fetch(`${apiUrl}`)
         const data = await response.json();

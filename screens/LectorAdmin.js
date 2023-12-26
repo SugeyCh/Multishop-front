@@ -97,14 +97,29 @@ const LectorAdmin = ({ config, UserName }) => {
         console.log("No dejes campos vacíos.");
       } else {
         let apiUrl = ``;
-        if (!(config.ip == "")) {
-          apiUrl = `https://multishop-backend.onrender.com/lector`;
-          // apiUrl = `http://${config.ip}:${config.port}/lector`;
-          console.log("dirección con config: ", apiUrl);
-        } else {
-          apiUrl = `https://multishop-backend.onrender.com/lector`;
-          // apiUrl = `http://${ip}:${port}/lector`;
-          console.log("dirección con async: ", apiUrl);
+        const apiUrl1 = `https://multishop-backend.onrender.com/lector`
+        const apiUrl2 = `http:localhost:3000/lector`  
+        if (apiUrl1) {
+          if (!(config.ip == "")) {
+            apiUrl = apiUrl1
+            // apiUrl = `http://${config.ip}:${config.port}/login`;
+            console.log("dirección con config 1: ", apiUrl);
+          } else {
+            apiUrl = apiUrl1;
+            // apiUrl = `http://${ip}:${port}/login`;
+            console.log("dirección con async 1: ", apiUrl);
+          }
+        } 
+        if (apiUrl2) {
+          if (!(config.ip == "")) {
+            apiUrl = apiUrl2
+            // apiUrl = `http://${config.ip}:${config.port}/login`;
+            console.log("dirección con config 2: ", apiUrl);
+          } else {
+            apiUrl = apiUrl2;
+            // apiUrl = `http://${ip}:${port}/login`;
+            console.log("dirección con async 2: ", apiUrl);
+          }
         }
         const res = await postCode(movement, apiUrl);
         if (res) {
@@ -167,11 +182,11 @@ const LectorAdmin = ({ config, UserName }) => {
       // console.log(codeToSearch)
       let apiUrl = ``;
       if (!(config.ip == "")) {
-        apiUrl = `http://${config.ip}:3000/lector`;
+        apiUrl = `https://multishop-backend.onrender.com/lector`;
         // apiUrl = `http://${config.ip}:${config.port}/lector`;
         console.log("dirección con config: ", apiUrl);
       } else {
-        apiUrl = `http://${ip}:3000/lector`;
+        apiUrl = `https://multishop-backend.onrender.com/lector`;
         // apiUrl = `http://${ip}:${port}/lector`;
         console.log("dirección con async: ", apiUrl);
       }
